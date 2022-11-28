@@ -48,7 +48,10 @@ async function run () {
             console.log(user);
             const result = await userCollection.insertOne(user);
             res.send(result);
-        })
+        });
+
+
+        
     }
     finally{
 
