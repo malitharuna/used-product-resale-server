@@ -22,12 +22,13 @@ async function run() {
         const userCollection = client.db(`Desired-Wheel`).collection('Users');
         const ordersCollection = client.db(`Desired-Wheel`).collection('orders');
 
+        // order add in db api
         app.post('/orders', async (req, res) => {
             const data = req.body
             const result = await ordersCollection.insertOne(data)
             res.send(result)
         })
-
+        // orders api
         app.get("/orders", async (req, res) => {
             const email = req.query.email
             const query = {
@@ -37,6 +38,27 @@ async function run() {
             res.send(result);
         });
 
+        // sellers api
+        app.get('/sellers', async (req, res) => {
+            const seller = req.query.role;
+            const query = {
+                role: seller
+            }
+            const result = await userCollection.find(query).toArray()
+            res.send(result)
+        });
+
+        // buyers api
+        app.get('/buyers', async (req, res) => {
+            const buyer = req.query.role;
+            const query = {
+                role: buyer
+            }
+            const result = await userCollection.find(query).toArray()
+            res.send(result)
+        });
+
+        // 
         app.get("/category", async (req, res) => {
             const query = {};
             const categories = await categoryCollection.find(query).toArray();
@@ -55,7 +77,7 @@ async function run() {
             console.log(result)
             res.send(result);
         });
-
+        // user add api
         app.post('/addUser', async (req, res) => {
             const user = req.body;
             console.log(user);
