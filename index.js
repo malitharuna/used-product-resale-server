@@ -22,6 +22,20 @@ async function run() {
         const userCollection = client.db(`Desired-Wheel`).collection('Users');
         const ordersCollection = client.db(`Desired-Wheel`).collection('orders');
 
+       // allusers load api
+        app.get('/users', async(req, res) =>{
+            const query = {};
+            const users = await userCollection.find(query).toArray();
+            res.send(users);
+        })
+        // user add api
+        app.post('/addUser', async (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+        });
+
         // order add in db api
         app.post('/orders', async (req, res) => {
             const data = req.body
@@ -42,9 +56,24 @@ async function run() {
         app.get('/sellers', async (req, res) => {
             const seller = req.query.role;
             const query = {
-                role: seller
+                role: 'seller'
             }
             const result = await userCollection.find(query).toArray()
+            res.send(result)
+        });
+        // my product api
+        app.get('/myproduct', async (req, res) => {
+            const name = req.query.name;
+            const email= req.query.email;
+            const query = {
+                seller_info:{
+                    email,
+                    name,
+                } 
+            }
+            console.log(query);
+            const result = await productCollection.find(query).toArray()
+            console.log(result);
             res.send(result)
         });
 
@@ -52,13 +81,13 @@ async function run() {
         app.get('/buyers', async (req, res) => {
             const buyer = req.query.role;
             const query = {
-                role: buyer
+                role: 'buyer'
             }
             const result = await userCollection.find(query).toArray()
             res.send(result)
         });
 
-        // 
+        // category api
         app.get("/category", async (req, res) => {
             const query = {};
             const categories = await categoryCollection.find(query).toArray();
@@ -77,13 +106,14 @@ async function run() {
             console.log(result)
             res.send(result);
         });
-        // user add api
-        app.post('/addUser', async (req, res) => {
-            const user = req.body;
-            console.log(user);
-            const result = await userCollection.insertOne(user);
-            res.send(result);
-        });
+       
+
+        // add product api
+        app.post('/addproduct', async(req, res) =>{
+            const productInfo = req.body;
+            const result = await productCollection.insertOne(productInfo)
+            res.send(result)
+        })
     }
     finally {
 
