@@ -22,12 +22,43 @@ async function run() {
         const userCollection = client.db(`Desired-Wheel`).collection('Users');
         const ordersCollection = client.db(`Desired-Wheel`).collection('orders');
 
-       // allusers load api
-        app.get('/users', async(req, res) =>{
+        // allusers load api
+        app.get('/users', async (req, res) => {
             const query = {};
             const users = await userCollection.find(query).toArray();
             res.send(users);
         })
+
+        // delete api
+        app.delete("/users/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+          });
+
+        // admin api
+        app.get("/users/admin", async (req, res) => {
+            const email = req.query.email;
+            const query = { email };
+            const user = await userCollection.findOne(query);
+        if(user){
+            return res.send({ isAdmin: user?.role === "admin" });
+        }    
+            
+        });
+        // //seller api
+        app.get("/users/seller", async (req, res) => {
+            const email = req.query.email;
+            console.log(email);
+            const query = { email };
+            const seller = await userCollection.findOne(query);
+            console.log(seller);
+            if(seller){
+                return res.send({ isSeller: seller?.role === "seller" });
+            }
+        });
+        
         // user add api
         app.post('/addUser', async (req, res) => {
             const user = req.body;
@@ -46,7 +77,7 @@ async function run() {
         app.get("/orders", async (req, res) => {
             const email = req.query.email
             const query = {
-                customerEmail:email
+                customerEmail: email
             };
             const result = await ordersCollection.find(query).toArray();
             res.send(result);
@@ -59,17 +90,28 @@ async function run() {
                 role: 'seller'
             }
             const result = await userCollection.find(query).toArray()
+            console.log(result);
             res.send(result)
+        });
+          // buyers api
+          app.get('/buyers', async (req, res) => {
+            const buyer = req.query.role;
+            const query = {
+                role: 'buyer'
+            }
+            const result = await userCollection.find(query).toArray()
+            console.log(result);
+            res.send(result);
         });
         // my product api
         app.get('/myproduct', async (req, res) => {
             const name = req.query.name;
-            const email= req.query.email;
+            const email = req.query.email;
             const query = {
-                seller_info:{
+                seller_info: {
                     email,
                     name,
-                } 
+                }
             }
             console.log(query);
             const result = await productCollection.find(query).toArray()
@@ -77,15 +119,7 @@ async function run() {
             res.send(result)
         });
 
-        // buyers api
-        app.get('/buyers', async (req, res) => {
-            const buyer = req.query.role;
-            const query = {
-                role: 'buyer'
-            }
-            const result = await userCollection.find(query).toArray()
-            res.send(result)
-        });
+
 
         // category api
         app.get("/category", async (req, res) => {
@@ -106,10 +140,10 @@ async function run() {
             console.log(result)
             res.send(result);
         });
-       
+
 
         // add product api
-        app.post('/addproduct', async(req, res) =>{
+        app.post('/addproduct', async (req, res) => {
             const productInfo = req.body;
             const result = await productCollection.insertOne(productInfo)
             res.send(result)
